@@ -15,7 +15,7 @@ export default function Bento() {
                     Mobile friendly
                   </p>
                   <p className="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-                    Anim aute id magna aliqua ad ad non deserunt sunt. Qui irure qui lorem cupidatat commodo.
+                    Our webapp is completely Mobile Friendly as the client can attend calls on Mobile seamlessly.
                   </p>
                 </div>
                 <div className="relative min-h-[30rem] w-full grow [container-type:inline-size] max-lg:mx-auto max-lg:max-w-sm">
@@ -54,7 +54,7 @@ export default function Bento() {
                 <div className="px-8 pt-8 sm:px-10 sm:pt-10">
                   <p className="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">Encrypted</p>
                   <p className="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-                    Morbi viverra dui mi arcu sed. Tellus semper adipiscing suspendisse semper morbi.
+                    Our calls are very secure and can only be accessed by desired personals
                   </p>
                 </div>
                 <div className="flex flex-1 items-center [container-type:inline-size] max-lg:py-6 lg:pb-2">
@@ -88,7 +88,7 @@ export default function Bento() {
                         <div className="border-r border-gray-600/10 px-4 py-2">App.jsx</div>
                       </div>
                     </div>
-                    <div className="px-6 pb-14 pt-6">{/* Hello World */}</div>
+                    <div className="px-6 pb-14 pt-6">{"import { useState } from 'react' import { Dialog, DialogPanel } from '@headlessui/react' import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'"}</div>
                   </div>
                 </div>
               </div>

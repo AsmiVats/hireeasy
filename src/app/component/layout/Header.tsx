@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Dialog, DialogPanel } from '@headlessui/react';
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
-import Logo from '@/app/Logo.svg';
+
 
 const navigation = [
   { name: 'Demo', href: '#' },
@@ -23,7 +23,7 @@ export default function Header() {
             <span className="sr-only">Hireasy</span>
             <img
               alt=""
-              src={Logo}
+              src="https://i.postimg.cc/65S96MCp/Vector.png"
               className="h-8 w-auto"
             />
           </a>
