@@ -1,5 +1,3 @@
-import Img1 from '@/app/Mobile Screenshot.png';
-
 export default function Bento() {
     return (
       <div className="bg-gray-50 py-24 sm:py-32">
@@ -24,7 +22,7 @@ export default function Bento() {
                   <div className="absolute inset-x-10 bottom-0 top-10 overflow-hidden rounded-t-[12cqw] border-x-[3cqw] border-t-[3cqw] border-gray-700 bg-gray-900 shadow-2xl">
                     <img
                       className="size-full object-cover object-top"
-                      src={Img1}
+                      src="https://i.postimg.cc/Xvz4rp00/Mobile-Screenshot.png"
                     />
                   </div>
                 </div>
