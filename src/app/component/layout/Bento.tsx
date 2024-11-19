@@ -35,7 +35,7 @@ export default function Bento() {
                 <div className="px-8 pt-8 sm:px-10 sm:pt-10">
                   <p className="mt-2 text-lg font-medium tracking-tight text-gray-950 max-lg:text-center">Performance Report</p>
                   <p className="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-                    Lorem ipsum, dolor sit amet consectetur adipisicing elit maiores impedit.
+                  Benchmark against the best and get a 360-degree view of your sales.
                   </p>
                 </div>
                 <div className="flex flex-1 items-center justify-center px-8 max-lg:pb-12 max-lg:pt-10 sm:px-10 lg:pb-2">
@@ -75,7 +75,7 @@ export default function Bento() {
                     Powerful APIs
                   </p>
                   <p className="mt-2 max-w-lg text-sm/6 text-gray-600 max-lg:text-center">
-                    Sit quis amet rutrum tellus ullamcorper ultricies libero dolor eget sem sodales gravida.
+                  No more painful API integrations with third-party vendors.
                   </p>
                 </div>
                 <div className="relative min-h-[30rem] w-full grow">
