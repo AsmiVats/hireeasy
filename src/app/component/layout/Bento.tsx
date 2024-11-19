@@ -1,6 +1,6 @@
 export default function Bento() {
     return (
-      <div className="bg-gray-900 py-24 sm:py-32"> {/* Changed to dark gray background */}
+      <div className="bg-gray-900 py-24 sm:py-32" id="about"> {/* Changed to dark gray background */}
         <div className="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
           <h2 className="text-center text-base/7 font-semibold text-indigo-400"> {/* Adjusted to lighter indigo */}
             Work Faster

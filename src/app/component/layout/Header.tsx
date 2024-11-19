@@ -7,9 +7,9 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const navigation = [
   { name: 'Demo', href: '#' },
-  { name: 'Features', href: '#' },
+  { name: 'Features', href: '#features' },
   { name: 'Product', href: '#' },
-  { name: 'About', href: '#' },
+  { name: 'About', href: '#about' },
 ];
 
 export default function Header() {
@@ -23,7 +23,7 @@ export default function Header() {
             <span className="sr-only">Hireasy</span>
             <img
               alt=""
-              src="https://i.postimg.cc/65S96MCp/Vector.png"
+              src="hhttps://i.postimg.cc/W3mFqMkz/Screenshot-2024-11-19-at-10-02-10-PM.png"
               className="h-8 w-auto"
             />
           </a>
