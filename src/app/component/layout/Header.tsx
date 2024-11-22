@@ -22,8 +22,8 @@ export default function Header() {
             <span className="sr-only">Hireasy</span>
             <img
               alt=""
-              src="hhttps://i.postimg.cc/W3mFqMkz/Screenshot-2024-11-19-at-10-02-10-PM.png"
-              className="h-8 w-auto"
+              src="https://i.postimg.cc/zG3j1PnV/E-removebg-preview.png"
+              className="h-20 w-auto"
             />
           </a>
         </div>
@@ -58,8 +58,8 @@ export default function Header() {
               <span className="sr-only">Hireasy</span>
               <img
                 alt=""
-                src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-                className="h-8 w-auto"
+                src="https://i.postimg.cc/zG3j1PnV/E-removebg-preview.png"
+                className="h-15 w-auto"
               />
             </a>
             <button
