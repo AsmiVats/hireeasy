@@ -7,9 +7,8 @@ import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline';
 
 const navigation = [
   { name: 'Demo', href: '#' },
-  { name: 'Features', href: '#' },
-  { name: 'Product', href: '#' },
-  { name: 'About', href: '#' },
+  { name: 'Features', href: '#features' },
+  { name: 'About', href: '#about' },
 ];
 
 export default function Header() {
@@ -23,8 +22,8 @@ export default function Header() {
             <span className="sr-only">Hireasy</span>
             <img
               alt=""
-              src="https://i.postimg.cc/65S96MCp/Vector.png"
-              className="h-8 w-auto"
+              src="https://i.postimg.cc/zG3j1PnV/E-removebg-preview.png"
+              className="h-20 w-auto"
             />
           </a>
         </div>
@@ -59,8 +58,8 @@ export default function Header() {
               <span className="sr-only">Hireasy</span>
               <img
                 alt=""
-                src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-                className="h-8 w-auto"
+                src="https://i.postimg.cc/zG3j1PnV/E-removebg-preview.png"
+                className="h-15 w-auto"
               />
             </a>
             <button
