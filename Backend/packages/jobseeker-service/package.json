@@ -1,0 +1,19 @@
+{
+  "name": "@talent-portal/jobseeker-service",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "startdisable": "node src/app.js",
+    "devdisable": "nodemon src/app.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@talent-portal/shared": "workspace:*",
+    "express": "^4.18.2",
+    "mongoose": "^7.0.3",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "plans": {
+    "bronze": {
+      "name": "Bronze Plan",
+      "resumeViews": 100,
+      "jobPosting": 5
+    },
+    "silver": {
+      "name": "Silver Plan",
+      "resumeViews": 500,
+      "jobPosting": 10
+    },
+    "unlimited": {
+      "name": "Unlimited Plan",
+      "resumeViews": 9999999,
+      "jobPosting": 9999999
+    },
+    "default": {
+      "name": "Basic Plan",
+      "resumeViews": 0,
+      "jobPosting": 0
+    }
+  }
+} 

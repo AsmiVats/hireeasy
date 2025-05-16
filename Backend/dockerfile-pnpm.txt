@@ -1,0 +1,48 @@
+# Base Dockerfile for all services
+FROM node:16-alpine AS builder
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+# Copy workspace config
+COPY pnpm-workspace.yaml ./
+COPY pnpm-lock.yaml ./
+COPY package.json ./
+
+# Copy shared package first
+COPY packages/shared ./packages/shared
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Build shared package
+RUN cd packages/shared && pnpm build
+
+# Build service
+ARG SERVICE_PATH
+COPY ${SERVICE_PATH}/package.json ./${SERVICE_PATH}/
+COPY ${SERVICE_PATH}/src ./${SERVICE_PATH}/src
+RUN cd ${SERVICE_PATH} && pnpm build
+
+# Production image
+FROM node:16-alpine
+
+# Install pnpm
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+# Copy built files
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/pnpm-lock.yaml ./
+COPY --from=builder /app/pnpm-workspace.yaml ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/packages/shared ./packages/shared
+ARG SERVICE_PATH
+COPY --from=builder /app/${SERVICE_PATH} ./${SERVICE_PATH}
+
+ENV NODE_ENV=production
+
+CMD ["node", "${SERVICE_PATH}/dist/app.js"]
