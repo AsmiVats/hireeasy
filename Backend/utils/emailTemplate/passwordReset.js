@@ -1,10 +1,10 @@
-export const passwordReset = (name, code) => {
+export const passwordReset = (name, link) => {
   return `<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NowEdge</title>
+  <title>Hireeasy</title>
 </head>
 <body style="font-family: Arial, sans-serif; background-color:rgb(23, 44, 80); margin: 0; padding: 0;">
   <div style="width: 100%; max-width: 600px; margin: 20px auto; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
@@ -18,14 +18,17 @@ export const passwordReset = (name, code) => {
     <!-- Body Content -->
     <div style="padding: 25px; font-size: 16px; color: #333; line-height: 1.6;">
       <p>Hi ${name},</p>
-      <p>We received a request to reset your password. Please use the security code below:</p>
-      <p style="font-size: 20px; font-weight: bold; color: #dc3545; text-align: center;">[${code}]</p>
+      <p>We received a request to reset your password. Please use the button below to reset your password:</p>
+      <div style="text-align: center; margin: 24px 0;">
+        <a href="${link}" style="background-color: #009951; color: #fff; padding: 12px 28px; border-radius: 5px; text-decoration: none; font-weight: bold; display: inline-block;">Reset Password</a>
+      </div>
+      <p>If you did not request a password reset, you can safely ignore this email.</p>
       <p>Best regards,<br>Support Team<br><span style="color:#009951; font-weight: bold;">Now</span><span style="color:#002244; font-weight: bold;">Edge</span></p>
     </div>
     <!-- Footer / Disclaimer -->
     <div style="font-size: 14px; color: #666; text-align: center; padding: 20px; border-top: 1px solid #ddd;">
       Disclaimer: This email and any attachments are intended solely for the recipient and may contain confidential or proprietary information. If you are not the intended recipient, please notify the sender immediately and delete this message. Any unauthorized review, use, disclosure, or distribution of this communication is strictly prohibited.<br><br>
-      © Copyright NowEdge 2025. All rights reserved. Contact us | Privacy Policies
+      © Copyright Hireeasy 2025. All rights reserved. Contact us | Privacy Policies
     </div>
   </div>
 

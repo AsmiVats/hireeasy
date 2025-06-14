@@ -25,6 +25,7 @@ import jobdivaRoutes from "./packages/routes/jobdiva.routes.js";
 import { initJobDivaSyncJobs } from "./packages/jobdiva-service/src/jobdiva.cron.js";
 import authService from "./utils/jobdiva/jobdivaAuth.js";
 import { bookDemoConfirmationToUser } from "./utils/emailTemplate/bookDemoConfirmationToUser.js";
+import { hireEasyEmails } from "./utils/reusableConstants.js";
 
 const firebaseConfig = JSON.parse(process.env.FIREBASE_CONFIG);
 
@@ -70,9 +71,6 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "http://localhost:3001",
-      "https://now-edge-web-frontend-197890003932.us-central1.run.app",
-      "https://now-edge-web-frontend.vercel.app"
     ],
     credentials: true,
     allowedHeaders: [
@@ -194,17 +192,17 @@ app.post("/sendMail", async (req, res) => {
   }
 });
 
-app.post("/sendMailToClient", async (req, res) => {
+app.post("/api/sendMailToClient", async (req, res) => {
   try {
     const { to, subject, date, time, name } = req.body;
-    const from = "nextcommon321@gmail.com";
+    const from = hireEasyEmails[0];
     logger.info(`Sending mail to client ${to} with subject: ${subject}`);
 
     await sendMail1(
       from,
       to,
       subject,
-      bookDemoConfirmationToUser(name, date, time)
+      bookDemoConfirmationToUser(name, new Date(date).toLocaleDateString(), time)
     )
       .then((data) => {
         logger.success(`Mail sent successfully to client ${to}`);

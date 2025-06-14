@@ -6,7 +6,8 @@ import { sendMail1 } from "../../../utils/sendMail.js";
 import { CandidateProfile } from "../../jobseeker-service/src/jobseekerController.js";
 import logger from "../../../utils/logger.js";
 import { passwordReset } from "../../../utils/emailTemplate/passwordReset.js";
-import { nowEdgeEmails } from "../../../utils/reusableConstants.js";
+import { hireEasyEmails } from "../../../utils/reusableConstants.js";
+import { verifyEmail } from "../../../utils/emailTemplate/verifyEmail.js";
 
 // User Model Here
 const userSchema = new mongoose.Schema(
@@ -21,6 +22,8 @@ const userSchema = new mongoose.Schema(
     password: String,
     userType: String,
     isActive: Boolean,
+    isVerified: { type: Boolean, default: false },
+    inviteCode: { type: String },
     createdAt: Date,
     logoUrl: { type: String }, // URL of the company logo
     phone: { type: Number },
@@ -72,38 +75,51 @@ const generateToken = (user) => {
 
 export const signup = async (req, res) => {
   try {
-    const { name, companySize, companyName, email, password, logoUrl, phone, userType } =
-      req.body;
-      console.log(req.body,"body")
-      const hashedPassword = await bcrypt.hash(password, 10);
-      const existingUser = await User.findOne({ email: email });
-      if (existingUser) {
-        return res.status(400).json({ message: "User already exists" });
-      }
-      const existingCandidate =await CandidateProfile.findOne({email});
-      console.log(existingCandidate);
-      if(existingCandidate){
-        return res.status(400).json({message: "Candidate already exists"});
-      }
-    if(userType === "Candidate"){
-      
+    const {
+      name,
+      companySize,
+      companyName,
+      email,
+      password,
+      logoUrl,
+      phone,
+      userType,
+    } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const existingUser = await User.findOne({ email: email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+    const existingCandidate = await CandidateProfile.findOne({ email });
+    if (existingCandidate) {
+      return res.status(400).json({ message: "Email already registered" });
+    }
+    const code = Math.floor(1000 + Math.random() * 9000);
+    if (userType === "Candidate") {
       const candidate = new CandidateProfile({
         email,
         name,
-        password:hashedPassword,
-        resumeLink:logoUrl,
-      })
+        password: hashedPassword,
+        resumeLink: logoUrl,
+        inviteCode: code,
+      });
       await candidate.save();
       const token = generateToken(candidate);
-  
+      const link = `${process.env.FRONTEND_URL}/verify-email?email=${email}&nwtoken=${token}`;
+      await sendMail1(
+        hireEasyEmails[0],
+        email,
+        "Verify your Email",
+        verifyEmail(name, code, link),
+      );
+
       res.status(201).json({
         message: "User registered successfully",
         token,
         userId: candidate._id,
+        success: true
       });
-    
-    }else{
-      
+    } else {
       const user = new User({
         email,
         name,
@@ -113,26 +129,29 @@ export const signup = async (req, res) => {
         userType: userType ? userType : "Candidate",
         logoUrl,
         phone,
-        isActive: true,
+        isActive: false,
+        inviteCode: code,
         createdAt: new Date(),
       });
       await user.save();
-  
+
       // Generate token
       const token = generateToken(user);
-  
+      const link = `${process.env.FRONTEND_URL}/verify-email?email=${email}&nwtoken=${token}`;
+      await sendMail1(
+        hireEasyEmails[0],
+        email,
+        "Verify your Email",
+        verifyEmail(name, code, link),
+      );
+
       res.status(201).json({
         message: "User registered successfully",
         token,
         userId: user._id,
+        success: true
       });
     }
-    
-
-    // Hash password
-
-    // Create user
-    
 
   } catch (error) {
     res
@@ -145,6 +164,7 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    let isEmailVerificationPending = false;
 
     // Find user
     const user = await User.findOne({ email });
@@ -152,7 +172,11 @@ export const login = async (req, res) => {
       const candidate = await CandidateProfile.findOne({ email });
 
       if (!candidate) {
-        return res.status(404).json({ sucess: false, message: "Not found" });
+        return res.status(404).json({ sucess: false, message: "Not found", isEmailVerificationPending  });
+      }
+      if (!candidate.isVerified) {
+        isEmailVerificationPending = true;
+        return res.status(401).json({ message: "Email not verified", isEmailVerificationPending  });
       }
 
       const isValidPassword = await bcrypt.compare(
@@ -161,7 +185,7 @@ export const login = async (req, res) => {
       );
 
       if (!isValidPassword) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ message: "Invalid credentials", isEmailVerificationPending  });
       }
 
       const token = generateToken(candidate);
@@ -182,9 +206,13 @@ export const login = async (req, res) => {
       });
     } else {
       // Verify password
+      if (!user.isVerified) {
+        isEmailVerificationPending = true;
+        return res.status(401).json({ message: "Email not verified", isEmailVerificationPending   });
+      }
       const isValidPassword = await bcrypt.compare(password, user.password);
       if (!isValidPassword) {
-        return res.status(401).json({ message: "Invalid credentials" });
+        return res.status(401).json({ message: "Invalid credentials", isEmailVerificationPending });
       }
 
       const token = generateToken(user);
@@ -201,6 +229,141 @@ export const login = async (req, res) => {
   }
 };
 
+export const verifySignup = async (req, res) => {
+  try {
+    const { email, inviteCode, token } = req.body;
+    if (!email || !inviteCode || !token) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+    let decoded;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || "ALPHABETAGAMA");
+    } catch (err) {
+      return res.status(401).json({ message: "Invalid or expired token" });
+    }
+    let user = await User.findOne({ email });
+    if (user) {
+      if (user.inviteCode !== inviteCode) {
+        return res.status(400).json({ message: "Invalid invite code" });
+      }
+      user.isVerified = true;
+      await user.save();
+      return res.json({ message: "Email verified successfully", userType: user.userType });
+    }
+    let candidate = await CandidateProfile.findOne({ email });
+    if (candidate) {
+      if (candidate.inviteCode !== inviteCode) {
+        return res.status(400).json({ message: "Invalid invite code" });
+      }
+      candidate.isVerified = true;
+      await candidate.save();
+      return res.json({ message: "Email verified successfully", userType: "Candidate" });
+    }
+    return res.status(404).json({ message: "Email not found" });
+  } catch (error) {
+    res.status(500).json({ message: "Error verifying signup", error: error.message });
+  }
+};
+export const resendVerificationCode = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      const candidate = await CandidateProfile.findOne({ email });
+      if (!candidate) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      if(candidate.isVerified) {
+        return res.status(400).json({ message: "User already verified" });
+      }
+      const code = Math.floor(1000 + Math.random() * 9000);
+      candidate.inviteCode = code;
+      await candidate.save();
+      const token = generateToken(candidate);
+      const link = `${process.env.FRONTEND_URL}/verify-email?email=${email}&nwtoken=${token}`;
+      await sendMail1(
+        hireEasyEmails[0],
+        email,
+        "Verify your Email",
+        verifyEmail(candidate.name, code, link),
+      )
+      return res.json({ message: "Verification code resent" });
+    }
+    if(user.isVerified) {
+      return res.status(400).json({ message: "User already verified" });
+    }
+    const code = Math.floor(1000 + Math.random() * 9000);
+    user.inviteCode = code;
+    await user.save();
+    const token = generateToken(user);
+      const link = `${process.env.FRONTEND_URL}/verify-email?email=${email}&nwtoken=${token}`;
+      await sendMail1(
+        hireEasyEmails[0],
+        email,
+        "Verify your Email",
+        verifyEmail(user.name, code, link),
+      );
+    res.json({ message: "Verification code resent" });
+  } catch (error) {
+    res.status(500).json({ message: "Error sending reset email", error: error.message });
+  }
+}
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+    if (!user) {
+      const candidate = await CandidateProfile.findOne({ email });
+      if (!candidate) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      const token = generateToken(candidate);
+      const link = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+      await sendMail1(
+        hireEasyEmails[0],
+        email,
+        "Reset Password",
+        passwordReset(email, link)
+      );
+      return res.json({ message: "Password reset email sent" });
+    }
+    const token = generateToken(user);
+    const link = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+    await sendMail1(
+      hireEasyEmails[0],
+      email,
+      "Reset Password",
+      passwordReset(email, link)
+    );
+    res.json({ message: "Password reset email sent" });
+  } catch (error) {
+    res.status(500).json({ message: "Error sending reset email", error: error.message });
+  }
+}
+export const resetPassword = async (req, res) => {
+  try {
+    const { token, password } = req.body;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "ALPHABETAGAMA");
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      const candidate = await CandidateProfile.findById(decoded.id);
+      if (!candidate) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      const hashedPassword = await bcrypt.hash(password, 10);
+      candidate.password = hashedPassword;
+      await candidate.save();
+      return res.json({ message: "Password reset successfully" });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    await user.save();
+    res.json({ message: "Password reset successfully" });
+  }
+  catch (error) {
+    res.status(500).json({ message: "Error resetting password", error: error.message });
+  }
+}
 export const getUsers = async (req, res) => {
   try {
     // Check if user is admin
@@ -454,7 +617,7 @@ export const sendOtp = async (req, res) => {
     });
   }
 
-  const from = nowEdgeEmails[0];
+  const from = hireEasyEmails[0];
   const to = email;
   const subject = `Password Reset Code`;
   await sendMail1(from, to, subject, passwordReset(commonUser[0]?.name, code));

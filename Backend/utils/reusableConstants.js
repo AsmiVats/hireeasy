@@ -1,4 +1,4 @@
-export const nowEdgeEmails = [
-  "yash12.dev@gmail.com",
-  "nextcommon321@gmail.com",
+export const hireEasyEmails = [
+  "rishavbhardwaz2881@boeing.com",
+  "riszzav@gmail.com",
 ];

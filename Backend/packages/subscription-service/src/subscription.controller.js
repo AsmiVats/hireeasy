@@ -5,6 +5,10 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import logger from '../../../utils/logger.js';
+import { hireEasyEmails, hireEasyEmailsEmails } from "../../../utils/reusableConstants.js";
+import { subcriptionSuccessfullToUser } from "../../../utils/emailTemplate/subscriptionSuccessfullToUser.js";
+import { subcriptionSuccessfullToHireeast } from "../../../utils/emailTemplate/subscriptionSuccessfullToHireeasy.js";
+import { sendMail1 } from "../../../utils/sendMail.js";
 
 // Get the directory name
 const __filename = fileURLToPath(import.meta.url);
@@ -285,6 +289,9 @@ class SubscriptionController {
       };
       
       await user.save();
+      const link = `${process.env.FRONTEND_URL}/`
+      await sendMail1(hireEasyEmails[0], user.email, 'Your Subscription is Activated', subcriptionSuccessfullToUser(user.name, new Date().toLocaleDateString(), new Date(user.subscription.expiryDate).toLocaleDateString()),link)
+      await sendMail1(hireEasyEmails[0], hireEasyEmails[1], 'User activated the subscription', subcriptionSuccessfullToHireeast(user.name, new Date().toLocaleDateString(), new Date(user.subscription.expiryDate).toLocaleDateString(), user.phone),link)
       
       return res.status(200).json(user.subscription);
     } catch (error) {

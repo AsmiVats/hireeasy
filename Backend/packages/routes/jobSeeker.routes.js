@@ -32,17 +32,17 @@ router.post("/createEducation", createEducation);
 router.post("/jobApply", createJobApplicationHandling);
 router.put("/updateJobApplied/:id", updateJobApplicationHandling);
 router.post("/createEmployment", createEmployment);
-router.delete("/employment",deleteEmployment);
+router.delete("/deleteEmployment", deleteEmployment);
 router.post("/addSkills", createSkill);
-router.delete("/skill",deleteSkill);
+router.delete("/deleteSkill", deleteSkill);
 router.post("/addLanguage", createLanguage);
-router.delete("/language",deleteLanguage)
 router.post("/searchJobs", searchJobs);
 router.post("/addDummyData", addDummyData);
 router.put("/updateSkills/:id", updateSkills);
 router.put("/updateEducation/:id", updateEducation);
-router.delete("/education",deleteEducation);
+router.delete("/deleteEducation", deleteEducation);
 router.put("/updateLanguage/:id", updateLanguage);
+router.delete("/deleteLanguage", deleteLanguage);
 router.put("/updateEmployment/:id", updateEmployment);
 router.post("/updatePassword", updatePassword);
 

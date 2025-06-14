@@ -40,17 +40,18 @@ router.put("/:userId/job-post-count", authenticateJWT, async (req, res) => {
     }
     
     const user = await User.findById(userId);
+    console.log(user,"Userrr");
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
     
     // Check if user has an active subscription
-    if (!user.subscriptionPlan || !user.subscriptionExpiry || new Date(user.subscriptionExpiry) < new Date()) {
+    if (!user.subscription || !user.subscription.expiryDate || new Date(user.subscription.expiryDate) < new Date()) {
       return res.status(403).json({ message: 'No active subscription' });
     }
     
     // Get plan details to check limits
-    const plan = await subscriptionStripeController.getSubscriptionPlanById(user.subscriptionPlan);
+    const plan = await subscriptionStripeController.getSubscriptionPlanById(user.subscription.planId);
     
     // Check if user has reached the job posting limit
     if (user.jobPostCount >= (plan?.jobPostLimit || 0)) {

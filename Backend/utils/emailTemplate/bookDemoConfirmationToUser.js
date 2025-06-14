@@ -5,7 +5,7 @@ export const bookDemoConfirmationToUser = (name, date, time) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NowEdge</title>
+  <title>Hireeasy</title>
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f4f7fc; margin: 0; padding: 0;">
 
@@ -25,13 +25,13 @@ export const bookDemoConfirmationToUser = (name, date, time) => {
     <!-- Body Content -->
     <div style="padding: 25px; font-size: 16px; color: #333; line-height: 1.6;">
       <p>Hi ${name},</p>
-      <p>Thank you for booking a demo with NowEdge ! We’re thrilled to have the opportunity to show you how NowEdge can help you solve all your hiring problem.</p>
+      <p>Thank you for booking a demo with Hireeasy ! We’re thrilled to have the opportunity to show you how Hireeasy can help you solve all your hiring problem.</p>
       
       <p style="color:#009951">Here's what happens next. </p>
       <p>Demo Date and Time - ${date} ${time}</p>
 
       <p style="color:#009951">What We'll Cover</p>
-      <p>1. A personalized walkthrough of NowEdge. </p>
+      <p>1. A personalized walkthrough of Hireeasy. </p>
       <p>2. How we can tailor our solutions to your needs. </p>
       <p>3. Answer to any questions which you may have. </p>
       <p>Best regards,<br>Support Team<br><span style="color:#009951; font-weight: bold;">Now</span><span style="color:#002244; font-weight: bold;">Edge</span></p>
@@ -39,7 +39,7 @@ export const bookDemoConfirmationToUser = (name, date, time) => {
     <!-- Footer / Disclaimer -->
     <div style="font-size: 14px; color: #666; text-align: center; padding: 20px; border-top: 1px solid #ddd;">
       Disclaimer: This email and any attachments are intended solely for the recipient and may contain confidential or proprietary information. If you are not the intended recipient, please notify the sender immediately and delete this message. Any unauthorized review, use, disclosure, or distribution of this communication is strictly prohibited.<br><br>
-      © Copyright NowEdge 2025. All rights reserved. Contact us | Privacy Policies
+      © Copyright Hireeasy 2025. All rights reserved. Contact us | Privacy Policies
     </div>
   </div>
 </body>

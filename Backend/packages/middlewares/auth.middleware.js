@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import logger from '../../utils/logger.js';
+import { CandidateProfile } from '../jobseeker-service/src/jobseekerController.js';
 
 const User = mongoose.model('User');
 
@@ -27,20 +28,25 @@ export const authenticateJWT = async (req, res, next) => {
       // Verify token using the correct secret
       const decoded = jwt.verify(token, 'ALPHABETAGAMA');
       logger.auth('Token decoded', { userId: decoded.id });
-      
-      // Find user by id
       const user = await User.findById(decoded.id).select('-password');
       logger.auth(`User found: ${user ? 'Yes' : 'No'}`);
-      
       if (!user) {
-        return res.status(401).json({ message: 'User not found' });
+        const candidate = await CandidateProfile.findById(decoded.id).select('-password');
+        if (!candidate) {
+          return res.status(404).json({ message: 'User not found' });
+        }
+        if(!candidate.isVerified){
+          return res.status(401).json({ message: 'Email not verified' });
+        }
+        req.user = candidate;
+        return next();
       }
-      
+      if(!user.isVerified){
+        return res.status(401).json({ message: 'Email not verified' });
+      }
       logger.auth(`User has subscription: ${user.subscription ? 'Yes' : 'No'}`);
-      
-      // Set user in request
       req.user = user;
-      next();
+      return next();
     } catch (err) {
       logger.error('Token verification failed:', err);
       return res.status(401).json({ message: 'Token is not valid', error: err.message });

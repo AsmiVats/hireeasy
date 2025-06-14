@@ -49,7 +49,7 @@ router.get(
   authenticateJWT,
   getNewlyAppliedCandidatesHandling
 );
-router.get(
+router.post(
   "/getAllCandidatesData",
   authenticateJWT,
   getCandidatesWithJobsApplied

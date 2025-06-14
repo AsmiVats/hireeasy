@@ -6,10 +6,10 @@ import {
 } from "../../jobseeker-service/src/jobseekerController.js";
 import { User } from "../../auth-service/src/auth.controller.js";
 import { bookDemo } from "../../../utils/emailTemplate/bookDemo.js";
-import { contactUsQueryToNowEdge } from "../../../utils/emailTemplate/contactUsQueryToNowEdge.js";
-import { nowEdgeEmails } from "../../../utils/reusableConstants.js";
+import { contactUsQueryTohireEasy } from "../../../utils/emailTemplate/contactUsQueryToHireeasy.js";
+import { hireEasyEmails } from "../../../utils/reusableConstants.js";
 import { helpDeskTemplateToEmp } from "../../../utils/emailTemplate/helpDeskTemplateToEmp.js";
-import { helpDeskTemplateToNowEdge } from "../../../utils/emailTemplate/helpDeskTemplateToNowEdge.js";
+import { helpDeskTemplateToHireeasy } from "../../../utils/emailTemplate/helpDeskTemplateToHireeasy.js";
 
 const contactUsSchema = new mongoose.Schema(
   {
@@ -81,7 +81,7 @@ const jobSchema = new mongoose.Schema(
       min: { type: Number, required: true }, // Minimum pay
       max: { type: Number, required: true }, // Maximum pay
     },
-    payType: {type:String},
+    payType: { type: String },
     noOfPeople: {
       type: Number,
     },
@@ -95,10 +95,10 @@ const jobSchema = new mongoose.Schema(
       type: String,
     },
     location: {
-      city: { type: String},
-      state: { type: String},
-      postalCode: { type: String},
-      country: { type: String},
+      city: { type: String },
+      state: { type: String },
+      postalCode: { type: String },
+      country: { type: String },
     },
     benefits: [String], // List of benefits, e.g., ["Health Insurance", "Paid Time Off"]
     description: { type: String, required: true }, // Job description
@@ -201,7 +201,7 @@ export const createJobPosting = async (req, res) => {
       });
     }
 
-     console.log(user.subscription);
+    console.log(user.subscription);
     // Check if user has an active subscription with available job postings
     if (
       user?.subscription &&
@@ -262,7 +262,7 @@ export const createJobPosting = async (req, res) => {
       ...jobData,
       companyName: user?.companyName,
       companyLogo: user?.companyLogo,
-    }
+    };
     console.log("Job data", jobDataToSave);
     // Create a new job instance
     const newJob = new Job(jobDataToSave);
@@ -291,7 +291,7 @@ export const createJobPosting = async (req, res) => {
     // const ENABLE_JOBDIVA_REALTIME_SYNC =
     //   process.env.ENABLE_JOBDIVA_REALTIME_SYNC === "true";
 
-    const ENABLE_JOBDIVA_REALTIME_SYNC = true;
+    const ENABLE_JOBDIVA_REALTIME_SYNC = false;
 
     if (ENABLE_JOBDIVA_REALTIME_SYNC) {
       try {
@@ -350,7 +350,7 @@ export const createJobPosting = async (req, res) => {
 
 export const getJobPosting = async (req, res) => {
   try {
-    const { employerId, id, page = 1, limit = 8, searchQuery } = req.query;
+    const { employerId, id, page = 1, limit = 10, searchQuery } = req.query;
     const getObj = {};
     if (employerId) {
       getObj.employerId = new mongoose.Types.ObjectId(employerId);
@@ -371,7 +371,7 @@ export const getJobPosting = async (req, res) => {
           { "location.state": { $regex: searchQuery, $options: "i" } },
           { "location.country": { $regex: searchQuery, $options: "i" } },
           { "location.postalCode": { $regex: searchQuery, $options: "i" } },
-        ]
+        ],
       };
     }
 
@@ -386,23 +386,23 @@ export const getJobPosting = async (req, res) => {
 
     const jobs = await Job.aggregate([
       {
-        $match: matchStage
+        $match: matchStage,
       },
       {
         $lookup: {
           from: "jobsapplieds",
           localField: "_id",
           foreignField: "jobId",
-          as: "applications"
-        }
+          as: "applications",
+        },
       },
       {
         $lookup: {
           from: "jobapplicationviews",
           localField: "_id",
           foreignField: "jobApplicationId",
-          as: "views"
-        }
+          as: "views",
+        },
       },
       {
         $addFields: {
@@ -414,12 +414,12 @@ export const getJobPosting = async (req, res) => {
                 input: "$applications",
                 as: "app",
                 cond: {
-                  $gt: ["$$app.createdAt", new Date(Date.now() - 3600 * 1000)]
-                }
-              }
-            }
-          }
-        }
+                  $gt: ["$$app.createdAt", new Date(Date.now() - 3600 * 1000)],
+                },
+              },
+            },
+          },
+        },
       },
       {
         $project: {
@@ -436,7 +436,7 @@ export const getJobPosting = async (req, res) => {
           skills: 1,
           experience: 1,
           payRange: 1,
-          payType:1,
+          payType: 1,
           noOfPeople: 1,
           phone: 1,
           name: 1,
@@ -452,11 +452,12 @@ export const getJobPosting = async (req, res) => {
           updatedAt: 1,
           totalApplications: 1,
           totalViews: 1,
-          latestApplicationCount: 1
-        }
+          latestApplicationCount: 1,
+        },
       },
+      { $sort: { createdAt: -1 } },
       { $skip: skip },
-      { $limit: pageSize }
+      { $limit: pageSize },
     ]);
 
     const totalCount = await Job.countDocuments(matchStage);
@@ -468,6 +469,7 @@ export const getJobPosting = async (req, res) => {
       totalCount,
       totalPages: Math.ceil(totalCount / pageSize),
       currentPage: pageNumber,
+      limit: pageSize,
     });
   } catch (error) {
     res.status(500).json({
@@ -500,7 +502,7 @@ export const updateJobPosting = async (req, res) => {
     // const ENABLE_JOBDIVA_REALTIME_SYNC =
     //   process.env.ENABLE_JOBDIVA_REALTIME_SYNC === "true";
 
-    const ENABLE_JOBDIVA_REALTIME_SYNC = true;
+    const ENABLE_JOBDIVA_REALTIME_SYNC = false;
 
     if (ENABLE_JOBDIVA_REALTIME_SYNC) {
       try {
@@ -630,7 +632,7 @@ export const getJobsWithApplicationStatsHandling = async (req, res) => {
     if (employerId) {
       getObj.employerId = new mongoose.Types.ObjectId(employerId);
     }
-    if(status){
+    if (status) {
       getObj.status = status;
     }
 
@@ -1036,7 +1038,7 @@ export const createDemoHandling = async (req, res) => {
 
     const { from, subject } = req.body;
 
-    const emails = ["vishweshjha@gmail.com", "nextcommon321@gmail.com"];
+    const emails = hireEasyEmails;
 
     for (let i of emails) {
       await sendMail1(
@@ -1080,14 +1082,17 @@ export const getAllDemos = async (req, res) => {
 
 export const getCandidatesWithJobsApplied = async (req, res) => {
   try {
-    const { page = 1, limit = 8, search = "", employerId } = req.query;
+    const { page = 1, limit = 10, search = "", employerId } = req.query;
+
+    const { status } = req.body;
 
     const pageSize = parseInt(limit, 10);
     const pageNumber = parseInt(page, 10);
 
-    const matchStage = {
-      status: "ACTIVE",
-    };
+    const matchStage = {};
+
+    if (status?.length > 0) matchStage.status = { $in: status };
+    console.log(matchStage);
 
     // If search query exists, use regex for case-insensitive matching
     if (search) {
@@ -1098,7 +1103,6 @@ export const getCandidatesWithJobsApplied = async (req, res) => {
       matchStage["job.employerId"] = new mongoose.Types.ObjectId(employerId);
     }
 
-    console.log(matchStage);
     const result = await JobApplied.aggregate([
       {
         $lookup: {
@@ -1132,6 +1136,7 @@ export const getCandidatesWithJobsApplied = async (req, res) => {
           candidatePhone: "$candidate.phone",
           candidateAddress: "$candidate.address",
           appliedAt: 1,
+          status: 1,
           jobId: "$job._id",
           jobTitle: "$job.title",
         },
@@ -1326,7 +1331,7 @@ export const createContactUs = async (req, res) => {
         email,
         i,
         `New Contact Us Query from ${name}`,
-        contactUsQueryToNowEdge(name, message, email, phone, totalQueries)
+        contactUsQueryTohireEasy(name, message, email, phone, totalQueries)
       );
     }
 
@@ -1375,14 +1380,23 @@ export const getAllContactUs = async (req, res) => {
 };
 
 const convertToJobDivaPayload = (filters = {}) => {
-  const { searchQuery, name, city, state, postalCode, country } = filters;
-
+  const { searchQuery, name, city, state, postalCode, country, address } = filters;
+  let cityValue = city || "";
+  let zipCodeValue = postalCode || "";
+  if (address) {
+    if (/^\d{5}(-\d{4})?$/.test(address)) {
+      zipCodeValue = address;
+    } else if (typeof address === "string" && isNaN(Number(address))) {
+      cityValue = address;
+    }
+  }
   return {
-    city: city || "",
+    city: cityValue,
     state: state || "",
-    zipCode: postalCode || "",
-    country: country || "",
+    zipCode: zipCodeValue,
+    country: "US",
     firstName: name || searchQuery || "",
+    searchQuery: searchQuery || address || "",
   };
 };
 
@@ -1391,17 +1405,21 @@ export const getRecommendedCandidates = async (req, res) => {
     const {
       jobTitle,
       skills,
-      experience,
+      minExperience,
+      maxExperience,
       city,
       state,
+      minPay,
+      maxPay,
       postalCode,
       address,
+      postedWithin,
       country,
       page = 1,
       limit = 10,
       searchQuery,
     } = req.body;
-    console.log(req.body);
+    // const experience = minExperience);
 
     const filtersForJobDiva = convertToJobDivaPayload(req.body);
 
@@ -1410,122 +1428,179 @@ export const getRecommendedCandidates = async (req, res) => {
     const skip = (pageNumber - 1) * pageSize;
 
     const matchStage = { $match: {} };
+    const conditions = [];
 
-    if (jobTitle)
-      matchStage.$match["desiredJobTitle"] = {
-        $regex: jobTitle,
-        $options: "i",
-      };
-    if (skills?.length > 0) matchStage.$match.skills = { $in: skills };
-    if (experience)
-      matchStage.$match.experience = { $gte: parseInt(experience, 10) };
-    if(address) {
-      matchStage.$match["$or"] = [
-        { "city": { $regex: address, $options: "i" } },
-        { "state": { $regex: address, $options: "i" } },
-        { "postalCode": { $regex: address, $options: "i" } },
-        { "country": { $regex: address, $options: "i" } }
+    if (address) {
+      const addressConditions = [
+        { city: { $regex: address, $options: "i" } },
+        { state: { $regex: address, $options: "i" } },
+        { postalCode: { $regex: address, $options: "i" } },
+        { country: { $regex: address, $options: "i" } },
       ];
-    }
-    if (city)
-      matchStage.$match["city"] = { $regex: city, $options: "i" };
-    if (state)
-      matchStage.$match["state"] = { $regex: state, $options: "i" };
-    if (postalCode)
-      matchStage.$match["postalCode"] = {
-        $regex: postalCode,
-        $options: "i",
-      };
-    if (country)
-      matchStage.$match["country"] = {
-        $regex: country,
-        $options: "i",
-      };
 
-    if (searchQuery) {
-      const experienceValue = parseInt(searchQuery, 10);
-      matchStage.$match.$or = [
+      if (searchQuery) {
+        // Both address and searchQuery are present; create AND condition.
+        const searchQueryConditions = [
+          { desiredJobTitle: { $regex: searchQuery, $options: "i" } },
+          { "candidateSkills.name": { $regex: searchQuery, $options: "i" } },
+          { skills: { $regex: searchQuery, $options: "i" } }, // This will match against the skills array
+        ];
+
+        matchStage.$match = {
+          $and: [{ $or: addressConditions }, { $or: searchQueryConditions }],
+        };
+      } else {
+        // Only address is present; use OR for address fields.
+        matchStage.$match = { $or: addressConditions };
+      }
+    } else if (searchQuery) {
+      // Only searchQuery is present; use OR for searchQuery fields.
+      const searchQueryConditions = [
         { desiredJobTitle: { $regex: searchQuery, $options: "i" } },
-        { "city": { $regex: searchQuery, $options: "i" } },
-        { "state": { $regex: searchQuery, $options: "i" } },
-        { "country": { $regex: searchQuery, $options: "i" } },
-        { "postalCode": { $regex: searchQuery, $options: "i" } },
-        { skills: { $regex: searchQuery, $options: "i" } },
-        ...(isNaN(experienceValue)
-          ? []
-          : [{ experience: { $gte: experienceValue } }]),
+        { "candidateSkills.name": { $regex: searchQuery, $options: "i" } },
+        {name: { $regex: searchQuery, $options: "i" } },
+        { skills: { $regex: searchQuery, $options: "i" } }, // This will match against the skills array
       ];
+      matchStage.$match = { $or: searchQueryConditions };
+    }
+
+    if (skills?.length > 0) {
+      conditions.push({
+        skills: { $all: skills }, // Use $all here
+      });
+    }
+    if (
+      (minExperience && parseInt(minExperience) > 0) ||
+      (maxExperience && parseInt(maxExperience) > 0)
+    ) {
+      const range = {};
+      if (minExperience && parseInt(minExperience) > 0)
+        range.$gte = parseInt(minExperience, 10);
+      if (maxExperience && parseInt(maxExperience) > 0)
+        range.$lte = parseInt(maxExperience, 10);
+      if (Object.keys(range).length > 0) {
+        conditions.push({experience:range});
+      }
+    }
+    // if (minExperience) conditions.push({ experience: { $gte: minExperience } });
+    // if (maxExperience) conditions.push({ experience: { $lte: maxExperience } });
+    if (minPay) conditions.push({ minPay: { $gte: minPay } });
+    if (maxPay) conditions.push({ maxPay: { $lte: maxPay } });
+    if (postalCode)
+      conditions.push({ postalCode: { $regex: postalCode, $options: "i" } });
+    if (postedWithin) {
+      const now = new Date();
+      let filterDate;
+      switch (postedWithin) {
+        case "1day":
+          filterDate = new Date(now.setDate(now.getDate() - 1));
+          break;
+        case "7days":
+          filterDate = new Date(now.setDate(now.getDate() - 7));
+          break;
+        case "15days":
+          filterDate = new Date(now.setDate(now.getDate() - 15));
+          break;
+        case "30days":
+          filterDate = new Date(now.setDate(now.getDate() - 30));
+          break;
+        case "60days":
+          filterDate = new Date(now.setDate(now.getDate() - 60));
+          break;
+      }
+      if (filterDate) conditions.push({lastActive: { $gte: filterDate }}) ;
+    }
+    if (conditions.length > 0) {
+      if (matchStage.$match.$and) {
+        matchStage.$match.$and.push(...conditions);
+      } else if (matchStage.$match.$or) {
+        matchStage.$match = { $and: [matchStage.$match, ...conditions] };
+      } else {
+        matchStage.$match = { $and: conditions };
+      }
     }
 
     // 1. Fetch MongoDB candidates
-    // const mongoCandidates = await CandidateProfile.aggregate([
-    //   matchStage,
-    //   { $sort: { createdAt: -1 } },
-    //   { $skip: skip },
-    //   { $limit: pageSize },
-    // ]);
     const mongoCandidates = await CandidateProfile.aggregate([
       {
         $lookup: {
-          from: "skills", // Join with the skills collection
+          from: "skills",
           localField: "_id",
           foreignField: "candidateProfile",
-          as: "candidateSkills"
-        }
+          as: "candidateSkills",
+        },
       },
-      {
-        $match: {
-          $or: [
-            { "candidateSkills.name": { $in: skills } },
-            { experience: { $gte: experience } }
-          ]
-        }
-      },
+      matchStage,
       {
         $addFields: {
-          matchedSkillsCount: {
-            $size: {
-              $filter: {
-                input: "$candidateSkills",
-                as: "skill",
-                cond: { $in: ["$$skill.name", skills] }
-              }
-            }
-          }
-        }
+          skills: "$candidateSkills.name", // Extract skill names into skills array
+        },
       },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          email: 1,
-          phone: 1,
-          experience: 1,
-          city: 1,
-          state: 1,
-          country: 1,
-          postalCode: 1,
-          skills: "$candidateSkills.name", // Project the skill names from joined skills
-          resumeLink: 1,
-          profileHeadline: 1,
-          matchedSkillsCount: 1
-        }
-      },
-      {
-        $sort: { matchedSkillsCount: -1 } // Sort by number of matched skills
-      }
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: pageSize },
     ]);
+    // const mongoCandidates = await CandidateProfile.aggregate([
+    //   {
+    //     $lookup: {
+    //       from: "skills", // Join with the skills collection
+    //       localField: "_id",
+    //       foreignField: "candidateProfile",
+    //       as: "candidateSkills"
+    //     }
+    //   },
+    //   {
+    //     $match: {
+    //       $or: [
+    //         { "candidateSkills.name": { $in: skills } },
+    //         { experience: { $gte: experience } }
+    //       ]
+    //     }
+    //   },
+    //   {
+    //     $addFields: {
+    //       matchedSkillsCount: {
+    //         $size: {
+    //           $filter: {
+    //             input: "$candidateSkills",
+    //             as: "skill",
+    //             cond: { $in: ["$$skill.name", skills] }
+    //           }
+    //         }
+    //       }
+    //     }
+    //   },
+    //   {
+    //     $project: {
+    //       _id: 1,
+    //       name: 1,
+    //       email: 1,
+    //       phone: 1,
+    //       experience: 1,
+    //       city: 1,
+    //       state: 1,
+    //       country: 1,
+    //       postalCode: 1,
+    //       skills: "$candidateSkills.name", // Project the skill names from joined skills
+    //       resumeLink: 1,
+    //       profileHeadline: 1,
+    //       matchedSkillsCount: 1
+    //     }
+    //   },
+    //   {
+    //     $sort: { matchedSkillsCount: -1 } // Sort by number of matched skills
+    //   }
+    // ]);
 
-    const totalMongoCandidates = await CandidateProfile.countDocuments(
-      matchStage.$match
-    );
+    const totalMongoCandidates = mongoCandidates.length;
+    console.log(totalMongoCandidates);
 
     // 2. Fetch from JobDiva
     let jobDivaCandidates = [];
     // const ENABLE_JOBDIVA_REALTIME_SYNC =
     //   process.env.ENABLE_JOBDIVA_REALTIME_SYNC === "true";
 
-    const ENABLE_JOBDIVA_REALTIME_SYNC = true;
+    const ENABLE_JOBDIVA_REALTIME_SYNC = false;
 
     if (ENABLE_JOBDIVA_REALTIME_SYNC) {
       try {
@@ -1550,10 +1625,11 @@ export const getRecommendedCandidates = async (req, res) => {
     }
 
     const totalAPICandidates = jobDivaCandidates.length;
-
+    console.log(totalAPICandidates);
     // 3. Merge data
     const combinedResults = [...mongoCandidates, ...jobDivaCandidates];
-
+    console.log(mongoCandidates, "mongoCandidates");
+    // console.log(jobDivaCandidates,"jobDivaCandidates")
     // 4. Paginate merged result
     let paginatedResults = [];
     if (mongoCandidates.length > 0) {
@@ -1570,7 +1646,7 @@ export const getRecommendedCandidates = async (req, res) => {
     }
 
     const totalCandidates = totalMongoCandidates + totalAPICandidates;
-
+    console.log(totalCandidates);
     return res.status(200).json({
       success: true,
       message: "Recommended candidates fetched successfully",
@@ -1611,7 +1687,7 @@ export const updateCommonMessage = async (req, res) => {
 
 export const createIssue = async (req, res) => {
   try {
-    const { problem, date, time, empId, phone} = req.body;
+    const { problem, date, time, empId, phone } = req.body;
 
     const emp = await User.findOne({ _id: empId });
 
@@ -1620,7 +1696,7 @@ export const createIssue = async (req, res) => {
       date,
       time,
       empId,
-      phone
+      phone,
     });
 
     const totalIssues = await Issues.countDocuments();
@@ -1673,24 +1749,24 @@ export const finishUpHelpDesk = async (req, res) => {
     const issue = await Issues.findOne({ _id: id });
 
     await sendMail1(
-      nowEdgeEmails[0],
+      hireEasyEmails[0],
       emp?.email,
-      "Email from NowEdge Addressing your Issue",
+      "Email from Hireeasy Addressing your Issue",
       helpDeskTemplateToEmp(
         emp?.name,
         emp?.email,
         phone,
         issue?.date?.toISOString()?.split("T")[0],
         convertTo12HourFormat(issue?.time),
-        nowEdgeEmails[0]
+        hireEasyEmails[0]
       )
     );
-    for (let i of nowEdgeEmails) {
+    for (let i of nhireEasyEmails) {
       await sendMail1(
         emp?.email,
         i,
         "Ticket Raised By Employee From Help Desk",
-        helpDeskTemplateToNowEdge(
+        helpDeskTemplateToHireeasy(
           emp?.name,
           emp?.email,
           issue?.date?.toISOString()?.split("T")[0],

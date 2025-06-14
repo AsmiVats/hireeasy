@@ -5,7 +5,7 @@ export const bookDemo = (name, email, phone) => {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NowEdge</title>
+  <title>Hireeasy</title>
 </head>
 <body style="font-family: Arial, sans-serif; background-color: #f4f7fc; margin: 0; padding: 0;">
 
@@ -20,7 +20,7 @@ export const bookDemo = (name, email, phone) => {
         <span style="color:#009951;
 ;">Now</span><span style="color: #002244;">Edge</span>
       </div>
-      <div style="font-size: 18px; margin-top: 10px;text-align: left; color:#009951;">User has booked a Demo on NowEdge</div>
+      <div style="font-size: 18px; margin-top: 10px;text-align: left; color:#009951;">User has booked a Demo on Hireeasy</div>
     </div>
     <!-- Body Content -->
     <div style="padding: 25px; font-size: 16px; color: #333; line-height: 1.6;">
@@ -34,7 +34,7 @@ export const bookDemo = (name, email, phone) => {
     <!-- Footer / Disclaimer -->
     <div style="font-size: 14px; color: #666; text-align: center; padding: 20px; border-top: 1px solid #ddd;">
       Disclaimer: This email and any attachments are intended solely for the recipient and may contain confidential or proprietary information. If you are not the intended recipient, please notify the sender immediately and delete this message. Any unauthorized review, use, disclosure, or distribution of this communication is strictly prohibited.<br><br>
-      © Copyright NowEdge 2025. All rights reserved. Contact us | Privacy Policies
+      © Copyright Hireeasy 2025. All rights reserved. Contact us | Privacy Policies
     </div>
   </div>
 </body>

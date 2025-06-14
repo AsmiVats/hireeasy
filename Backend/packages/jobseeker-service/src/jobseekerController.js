@@ -107,23 +107,26 @@ const candidateSchema = new mongoose.Schema(
     },
     password: { type: String },
     phone: { type: String },
-    dob:{type:Date},
+    dob: { type: Date },
     city: { type: String },
     state: { type: String },
-    address: {type:String},
+    address: { type: String },
     country: { type: String },
+    profileImage: { type: String },
     postalCode: { type: String },
-    experience: { type: String, default: "" },
+    experience: { type: Number, default: 0 },
     skills: [{ type: String }],
     achievements: [{ type: String }],
-    linkedinProfile: {type:String},
-    videoLink:{type:String},
-    payScale: {type: String},
-    payType: {type: String},
-    noticePeriod: {type: String},
+    linkedinProfile: { type: String },
+    videoLink: { type: String },
+    payScale: { type: String },
+    payType: { type: String },
+    noticePeriod: { type: String },
     resumeLink: { type: String },
     profileHeadline: { type: String },
     lastActive: { type: Date },
+    isVerified: { type: Boolean, default: false },
+    inviteCode: { type: String },
 
     // Fields for JobDiva integration
     externalId: {
@@ -152,36 +155,38 @@ export const createJobSeekerProfile = async (req, res) => {
     // const findCondition = {};
     let data = req.body;
 
-    console.log(data);
-    
-    const existingProfile = await CandidateProfile.find({email:data.email});
+    const existingProfile = await CandidateProfile.find({ email: data.email });
     let obj;
     let candidateProfile;
     if (existingProfile?.length > 0) {
-       candidateProfile = existingProfile[0];
+      candidateProfile = existingProfile[0];
       if (data.name) candidateProfile.name = data.name;
       if (data.phone) candidateProfile.phone = data.phone;
       if (data.dob) candidateProfile.dob = data.dob;
       if (data.city) candidateProfile.city = data.city;
       if (data.state) candidateProfile.state = data.state;
+      if (data.imageProfile) candidateProfile.imageProfile = data.imageProfile;
       if (data.country) candidateProfile.country = data.country;
       if (data.zipcode) candidateProfile.postalCode = data.zipcode;
-      if (data.experience !== undefined) candidateProfile.experience = data.experience;
-      if (data.profileHeadline) candidateProfile.profileHeadline = data.profileHeadline;
+      if (data.experience !== undefined)
+        candidateProfile.experience =parseInt(data.experience) ;
+      if (data.profileHeadline)
+        candidateProfile.profileHeadline = data.profileHeadline;
       if (data.resumeLink) candidateProfile.resumeLink = data.resumeLink;
-      if(data.address) candidateProfile.address = data.address;
-      
+      if (data.address) candidateProfile.address = data.address;
+
       if (Array.isArray(data.skills)) candidateProfile.skills = data.skills;
-      if (Array.isArray(data.achievements)) candidateProfile.achievements = data.achievements;
+      if (Array.isArray(data.achievements))
+        candidateProfile.achievements = data.achievements;
 
       if (data.linkedinProfile) {
         candidateProfile.linkedinProfile = data.linkedinProfile;
       }
 
-      if(data.videoLink){
+      if (data.videoLink) {
         candidateProfile.videoLink = data.videoLink;
       }
-      
+
       if (data.payScale) {
         candidateProfile.payScale = data.payScale;
       }
@@ -189,36 +194,33 @@ export const createJobSeekerProfile = async (req, res) => {
         candidateProfile.payType = data.payType;
       }
 
-      if(data.noticePeriod){
-        console.log("Hi")
+      if (data.noticePeriod) {
         candidateProfile.noticePeriod = data.noticePeriod;
       }
-      
+
       candidateProfile.lastActive = new Date();
       await candidateProfile.save();
-      console.log(candidateProfile)
-      obj = {
-        ...data,
-      }
-    }else{
-      if (data?.password) {
-        data.password = await bcrypt.hash(data?.password, 10);
-      }
-  
+      console.log(candidateProfile);
       obj = {
         ...data,
       };
-  
+    } else {
+      if (data?.password) {
+        data.password = await bcrypt.hash(data?.password, 10);
+      }
+
+      obj = {
+        ...data,
+      };
+
       candidateProfile = new CandidateProfile(obj);
       await candidateProfile.save();
     }
 
-    
-
     // Sync with JobDiva if real-time sync is enabled
     // const ENABLE_JOBDIVA_REALTIME_SYNC =
     //   process.env.ENABLE_JOBDIVA_REALTIME_SYNC === "true";
-    const ENABLE_JOBDIVA_REALTIME_SYNC = true;
+    const ENABLE_JOBDIVA_REALTIME_SYNC = false;
 
     if (ENABLE_JOBDIVA_REALTIME_SYNC) {
       try {
@@ -296,7 +298,7 @@ export const updateJobSeekerProfile = async (req, res) => {
     // Sync with JobDiva if real-time sync is enabled
     // const ENABLE_JOBDIVA_REALTIME_SYNC =
     //   process.env.ENABLE_JOBDIVA_REALTIME_SYNC === "true";
-    const ENABLE_JOBDIVA_REALTIME_SYNC = true;
+    const ENABLE_JOBDIVA_REALTIME_SYNC = false;
 
     if (ENABLE_JOBDIVA_REALTIME_SYNC) {
       try {
@@ -464,63 +466,81 @@ export const updateJobSeekerProfile = async (req, res) => {
     });
   }
 };
-export const deleteEmployment = async (req,res)=>{
-  try{
+export const deleteEmployment = async (req, res) => {
+  try {
     const id = req.query.id;
     const deletdEmployment = await Employment.findByIdAndDelete(id);
-    if(deletdEmployment){
+    if (deletdEmployment) {
       res.status(200).json(deletdEmployment);
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: "Employment is not found" });
     }
-  }catch(error){
+  } catch (error) {
     res.status(500).json({
       message: "Error deleting employment",
       error: error.message,
     });
   }
-}
-export const deleteEducation= async (req,res)=>{
-  try{
+};
+export const deleteEducation = async (req, res) => {
+  try {
     const id = req.query.id;
     const deletdEducation = await Education.findByIdAndDelete(id);
-    if(deletdEducation){
+    if (deletdEducation) {
       res.status(200).json(deletdEducation);
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: "Education is not found" });
     }
-  }catch(error){
+  } catch (error) {
     res.status(500).json({
       message: "Error deleting employment",
       error: error.message,
     });
   }
-}
+};
 
-export const deleteSkill= async (req,res)=>{
-  try{
+export const deleteSkill = async (req, res) => {
+  try {
     const id = req.query.id;
     const deletedSkill = await Skill.findByIdAndDelete(id);
-    if(deletedSkill){
+    if (deletedSkill) {
       res.status(200).json(deletedSkill);
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: "Skill is not found" });
     }
-  }catch(error){
+  } catch (error) {
     res.status(500).json({
       message: "Error deleting skill",
       error: error.message,
     });
   }
-}
-export const deleteLanguage= async (req,res)=>{
-  try{
+};
+
+export const deleteLanguage = async (req, res) => {
+  try {
     const id = req.query.id;
     const deletedLanguage = await Language.findByIdAndDelete(id);
-    if(deletedLanguage){
+    if (deletedLanguage) {
       res.status(200).json(deletedLanguage);
+    } else {
+      return res
+        .status(404)
+        .json({ success: false, message: "Language is not found" });
     }
-  }catch(error){
+  } catch (error) {
     res.status(500).json({
       message: "Error deleting language",
       error: error.message,
     });
   }
-}
+};
+
 export const createEmployment = async (req, res) => {
   try {
     const { data } = req.body;
@@ -637,7 +657,6 @@ export const getJobSeekerProfiles = async (req, res) => {
         $match: obj,
       },
     ]);
-    console.log(profiles[0])
     res.status(200).json(profiles);
   } catch (error) {
     res.status(500).json({
@@ -739,9 +758,13 @@ export const updateSkills = async (req, res) => {
   try {
     let { id } = req.params;
     id = new mongoose.Types.ObjectId(id);
-    console.log(req.body.data)
-    const skill = await Skill.findOneAndUpdate({ _id: id }, { $set: req.body },{new:true});
-    console.log(skill)
+
+    const skill = await Skill.findOneAndUpdate(
+      { _id: id },
+      { $set: req.body },
+      { new: true }
+    );
+    console.log(skill);
     return res.status(200).json({ success: true, message: "Update Success" });
   } catch (err) {
     console.log(err);
@@ -755,9 +778,11 @@ export const updateSkills = async (req, res) => {
 export const updateEducation = async (req, res) => {
   try {
     let { id } = req.params;
-    console.log(req.body.data)
     id = new mongoose.Types.ObjectId(id);
-    const education = await Education.findOneAndUpdate({ _id: id }, { $set: req.body.data });
+    const education = await Education.findOneAndUpdate(
+      { _id: id },
+      { $set: req.body }
+    );
     return res.status(200).json({ success: true, message: "Update Success" });
   } catch (err) {
     console.log(err);
@@ -771,7 +796,7 @@ export const updateLanguage = async (req, res) => {
   try {
     let { id } = req.params;
     id = new mongoose.Types.ObjectId(id);
-    await Language.findOneAndUpdate({ _id: id }, { $set: req.body.data });
+    await Language.findOneAndUpdate({ _id: id }, { $set: req.body });
     return res.status(200).json({ success: true, message: "Update Success" });
   } catch (err) {
     console.log(err);
@@ -784,10 +809,13 @@ export const updateLanguage = async (req, res) => {
 export const updateEmployment = async (req, res) => {
   try {
     let { id } = req.params;
-    console.log(req.body)
+    console.log(req.body);
     id = new mongoose.Types.ObjectId(id);
-    
-    const employment = await Employment.findOneAndUpdate({ _id: id }, { $set: req.body.data });
+
+    const employment = await Employment.findOneAndUpdate(
+      { _id: id },
+      { $set: req.body }
+    );
     console.log(employment);
     return res.status(200).json({ success: true, message: "Update Success" });
   } catch (err) {
@@ -824,16 +852,14 @@ export const searchJobs = async (req, res) => {
     const filtersForJobDiva = {
       title,
       minPay,
-      searchQuery:skills.join(','),
+      searchQuery: skills?.join(","),
       maxPay,
-      city: city || address,
-      state: state || address,
-      postalCode: postalCode || address,
-      country: country || address,
+      city: city,
+      state: state,
+      postalCode: postalCode,
+      country: country,
       isRemote: jobLocationType === "Fully Remote" ? true : false,
     };
-
-    console.log(minPay,maxPay);
 
     const pageNumber = parseInt(page, 10);
     const pageSize = parseInt(limit, 10);
@@ -844,32 +870,74 @@ export const searchJobs = async (req, res) => {
         status: "Open",
       },
     };
-    // ✅ Basic Filters (same logic)
-    if (title) matchStage.$match.title = { $regex: title, $options: "i" };
-    if (jobType) matchStage.$match.jobType = { $regex: jobType, $options: "i" };
-    if (jobLocationType)
-      matchStage.$match.jobLocationType = {
-        $regex: jobLocationType,
-        $options: "i",
-      };
-      if ((minExperience && parseInt(minExperience) > 0) || (maxExperience && parseInt(maxExperience) > 0)) {
-        const range = {};
-        if (minExperience && parseInt(minExperience) > 0) range.$gte = parseInt(minExperience, 10);
-        if (maxExperience && parseInt(maxExperience) > 0) range.$lte = parseInt(maxExperience, 10);
-        if (Object.keys(range).length > 0) {
-          matchStage.$match.experience = range;
-        }
-      }
-    if(address) {
-      matchStage.$match["$or"] = [
+    if (address) {
+      const addressConditions = [
         { "location.city": { $regex: address, $options: "i" } },
         { "location.state": { $regex: address, $options: "i" } },
         { "location.postalCode": { $regex: address, $options: "i" } },
-        { "location.country": { $regex: address, $options: "i" } }
+        { "location.country": { $regex: postalCode?postalCode:address, $options: "i" } }
       ];
+    
+      if (searchQuery) {
+        // Both address and searchQuery are present; create AND condition.
+        const searchQueryConditions = [
+          { title: { $regex: searchQuery, $options: "i" } },
+          { jobType: { $regex: searchQuery, $options: "i" } },
+          { jobLocationType: { $regex: searchQuery, $options: "i" } },
+          { "location.city": { $regex: searchQuery, $options: "i" } },
+          { "location.state": { $regex: searchQuery, $options: "i" } },
+          { "location.country": { $regex: searchQuery, $options: "i" } },
+          { "location.postalCode": { $regex: postalCode?postalCode:searchQuery, $options: "i" } },
+          { skills: { $regex: searchQuery, $options: "i" } },
+        ];
+    
+        matchStage.$match = {
+          $and: [
+            { $or: addressConditions }, //  OR for address fields
+            { $or: searchQueryConditions } // OR for searchQuery fields
+          ]
+        };
+      } else {
+        // Only address is present; use OR for address fields.
+        matchStage.$match = { $or: addressConditions };
+      }
+    } else if (searchQuery) {
+      // Only searchQuery is present; use OR for searchQuery fields.
+      const searchQueryConditions = [
+          { title: { $regex: searchQuery, $options: "i" } },
+          { jobType: { $regex: searchQuery, $options: "i" } },
+          { jobLocationType: { $regex: searchQuery, $options: "i" } },
+          { "location.city": { $regex: searchQuery, $options: "i" } },
+          { "location.state": { $regex: searchQuery, $options: "i" } },
+          { "location.country": { $regex: searchQuery, $options: "i" } },
+          { "location.postalCode": { $regex: postalCode?postalCode:searchQuery, $options: "i" } },
+          { skills: { $regex: searchQuery, $options: "i" } },
+        ];
+      matchStage.$match = { $or: searchQueryConditions };
+    }
+
+    // ✅ Basic Filters (same logic)
+    // if (title) matchStage.$match.title = { $regex: title, $options: "i" };
+    // if (jobType) matchStage.$match.jobType = { $regex: jobType, $options: "i" };
+    // if (jobLocationType)
+    //   matchStage.$match.jobLocationType = {
+    //     $regex: jobLocationType,
+    //     $options: "i",
+    //   };
+    if (
+      (minExperience && parseInt(minExperience) > 0) ||
+      (maxExperience && parseInt(maxExperience) > 0)
+    ) {
+      const range = {};
+      if (minExperience && parseInt(minExperience) > 0)
+        range.$gte = parseInt(minExperience, 10);
+      if (maxExperience && parseInt(maxExperience) > 0)
+        range.$lte = parseInt(maxExperience, 10);
+      if (Object.keys(range).length > 0) {
+        matchStage.$match.experience = range;
+      }
     }
     
-
     if ((minPay && parseInt(minPay) > 0) || (maxPay && parseInt(maxPay) > 0)) {
       matchStage.$match.$expr = { $and: [] };
       if (minPay && parseInt(minPay) > 0) {
@@ -888,41 +956,39 @@ export const searchJobs = async (req, res) => {
       }
     }
 
-    if (city)
-      matchStage.$match["location.city"] = { $regex: city, $options: "i" };
-    if (state)
-      matchStage.$match["location.state"] = { $regex: state, $options: "i" };
-    if (postalCode)
-      matchStage.$match["location.postalCode"] = {
-        $regex: postalCode,
-        $options: "i",
-      };
-    if (country)
-      matchStage.$match["location.country"] = {
-        $regex: country,
-        $options: "i",
-      };
+    // if (city)
+    //   matchStage.$match["location.city"] = { $regex: city, $options: "i" };
+    // if (state)
+    //   matchStage.$match["location.state"] = { $regex: state, $options: "i" };
+    // if (postalCode)
+    //   matchStage.$match["location.postalCode"] = {
+    //     $regex: postalCode,
+    //     $options: "i",
+    //   };
+    // if (country)
+    //   matchStage.$match["location.country"] = {
+    //     $regex: country,
+    //     $options: "i",
+    //   };
 
     // 🔍 Search query filter
-    if (searchQuery && address.trim() === "") {
-      const experienceValue = parseInt(searchQuery, 10);
-      matchStage.$match.$or = [
-        { title: { $regex: searchQuery, $options: "i" } },
-        { jobType: { $regex: searchQuery, $options: "i" } },
-        { jobLocationType: { $regex: searchQuery, $options: "i" } },
-        { "location.city": { $regex: searchQuery, $options: "i" } },
-        { "location.state": { $regex: searchQuery, $options: "i" } },
-        { "location.country": { $regex: searchQuery, $options: "i" } },
-        { "location.postalCode": { $regex: searchQuery, $options: "i" } },
-        { skills: { $regex: searchQuery, $options: "i" } },
-        ...(isNaN(experienceValue)
-          ? []
-          : [{ experience: { $gte: experienceValue } }]),
-      ];
-    }
+    // if (searchQuery) {
+    //   // const experienceValue = parseInt(searchQuery, 10);
+    //   matchStage.$match.$or = [
+    //     { title: { $regex: searchQuery, $options: "i" } },
+    //     { jobType: { $regex: searchQuery, $options: "i" } },
+    //     { jobLocationType: { $regex: searchQuery, $options: "i" } },
+    //     { "location.city": { $regex: searchQuery, $options: "i" } },
+    //     { "location.state": { $regex: searchQuery, $options: "i" } },
+    //     { "location.country": { $regex: searchQuery, $options: "i" } },
+    //     { "location.postalCode": { $regex: searchQuery, $options: "i" } },
+    //     { skills: { $regex: searchQuery, $options: "i" } },
+    //   ];
+    // }
+
     if (address || city || state || country) {
       matchStage.$match.jobLocationType = {
-        $ne: "Fully Remote"
+        $ne: "Fully Remote",
       };
     }
 
@@ -951,8 +1017,8 @@ export const searchJobs = async (req, res) => {
     }
 
     if (skills && skills.length > 0) {
-      matchStage.$match.skills = { $in: skills };
-    }
+      matchStage.$match.skills = { $all: skills };
+  }
 
     const mongoJobs = await Job.aggregate([
       matchStage,
@@ -1010,14 +1076,13 @@ export const searchJobs = async (req, res) => {
     ]);
 
     const totalMongoJobs = await Job.countDocuments(matchStage.$match);
-   
 
     // 🔁 External data (JobDiva)
     let jobDivaJobs = [];
     // const ENABLE_JOBDIVA_REALTIME_SYNC =
     //   process.env.ENABLE_JOBDIVA_REALTIME_SYNC === "true";
 
-    const ENABLE_JOBDIVA_REALTIME_SYNC = true;
+    const ENABLE_JOBDIVA_REALTIME_SYNC = false;
     if (ENABLE_JOBDIVA_REALTIME_SYNC) {
       try {
         const authService = await import(

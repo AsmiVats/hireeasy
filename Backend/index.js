@@ -1,6 +1,6 @@
 import app from "./app.js";
 // const app = require("./app.js");
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 9000;
 // import {connectDB} from "./config/db.js"
 
 app.listen(PORT, () => {
