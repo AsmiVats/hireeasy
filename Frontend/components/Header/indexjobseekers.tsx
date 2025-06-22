@@ -89,17 +89,17 @@ const HeaderJobSeekers = () => {
           <div className="flex w-full items-center justify-between xl:w-1/4">
             <a href="/">
               <Image
-                src="/images/logo/logo.svg"
+                src="/images/logo/logo.png"
                 alt="logo"
-                width={120}
-                height={40}
+                width={30}
+                height={30}
                 className="hidden w-full dark:block"
               />
               <Image
-                src="/images/logo/logo.svg"
+                src="/images/logo/logo.png"
                 alt="logo"
-                width={120}
-                height={40}
+                width={30}
+                height={30}
                 className="w-full dark:hidden"
               />
             </a>

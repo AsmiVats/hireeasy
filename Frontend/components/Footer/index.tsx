@@ -14,8 +14,8 @@ const Footer = () => {
                                                                                                                                             <p className="text-[#AEB4C1]">
                                                                                                                                                                 &copy;
                                                                                                                                                                 Copyright
-                                                                                                                                                                Now
-                                                                                                                                                                Edge{' '}
+                                                                                                                                                                Hire
+                                                                                                                                                                Easy{' '}
                                                                                                                                                                 {new Date().getFullYear()}
                                                                                                                                                                 .
                                                                                                                                                                 All
