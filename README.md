@@ -2,7 +2,8 @@
 
 **Hireeasy** is a modern and intuitive hiring platform designed to streamline the recruitment process for companies and hiring managers. Built with **Next.js** and **TypeScript**, the platform focuses on clean design, scalability, and performance.
 
-> 🚧 **Note**: This repository currently contains only the frontend implementation. The backend is under development and will be integrated soon.
+**Frontend - npm i ---- npm run dev**
+**Backend - setup env ---- npm i ---- npm run start**
 
 ---
 
