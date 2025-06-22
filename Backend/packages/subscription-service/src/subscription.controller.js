@@ -5,7 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import logger from '../../../utils/logger.js';
-import { hireEasyEmails, hireEasyEmailsEmails } from "../../../utils/reusableConstants.js";
+import { hireEasyEmails } from "../../../utils/reusableConstants.js";
 import { subcriptionSuccessfullToUser } from "../../../utils/emailTemplate/subscriptionSuccessfullToUser.js";
 import { subcriptionSuccessfullToHireeast } from "../../../utils/emailTemplate/subscriptionSuccessfullToHireeasy.js";
 import { sendMail1 } from "../../../utils/sendMail.js";
